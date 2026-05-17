@@ -1,6 +1,7 @@
 from statistics import mode
 import random
 from typing import Dict
+from collections import defaultdict
 
 class Game():
     action_at_night: Dict[str, bool] = {}
@@ -46,13 +47,13 @@ class Game():
         for player in [x for x in self.players if x.life]:
             if player.role == 'Mafia':
                 print(f'{player.name} please choose who to kill')
-                target = random.choice([x for x in self.players if x != player])
+                target = random.choice([x for x in self.players if x != player and player.life])
                 victims.append(target)
                 player.vote(target)
 
             elif player.role == 'Doctor':
                 print(f'{player.name} please choose who to save')
-                target = random.choice([x for x in self.players if x != player])
+                target = random.choice([x for x in self.players if x != player and player.life])
                 saves.append(target)
                 player.vote(target)
         
@@ -72,6 +73,17 @@ class Game():
                 print('an attempt was made but got save by the doctor')
 
         print('now lets continue for voting')
+
+    def conducting_vote(self):
+        voting_status: Dict[str,int] = defaultdict(int)
+        for player in [x for x in self.players if x.life]:
+            vote = random.choice([x for x in self.players if x != player and player.life])
+            player.vote(vote)
+            voting_status[vote] += 1
+        
+        voted_on = max(voting_status, key=voting_status.get)
+        voted_on.die()
+        print(f' the town has voted to excute {voted_on.name}')
 
 
 class Player():
@@ -117,4 +129,5 @@ my_game.show_alive_players()
 
 my_game.day_phase()
 
+my_game.conducting_vote()
 
