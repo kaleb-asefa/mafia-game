@@ -1,8 +1,10 @@
 from statistics import mode
 import random
+from typing import Dict
 
 class Game():
-    def __init__(self, state=1):
+    action_at_night: Dict[str, bool] = {}
+    def __init__(self, state:int=1):
         self.players = []
         self.state = state
 
@@ -38,18 +40,38 @@ class Game():
             print(f'{player.name} is {player.role}')
 
     def night_phase(self):
-        for player in self.players:
+
+        victims = []
+        saves = []
+        for player in [x for x in self.players if x.life]:
             if player.role == 'Mafia':
                 print(f'{player.name} please choose who to kill')
-                kill = random.choice([x for x in self.players if x != player])
-                player.vote(kill)
+                target = random.choice([x for x in self.players if x != player])
+                victims.append(target)
+                player.vote(target)
+
             elif player.role == 'Doctor':
                 print(f'{player.name} please choose who to save')
-                save = random.choice([x for x in self.players if x != player])
-                player.vote(save)
+                target = random.choice([x for x in self.players if x != player])
+                saves.append(target)
+                player.vote(target)
         
-        if kill != save:
-            kill.die()
+        for victim in victims:
+            if victim not in saves:
+                victim.die()
+                Game.action_at_night[victim] = True
+
+            elif victim in saves:
+                Game.action_at_night[victim] = False
+
+    def day_phase(self):
+        for person, action in Game.action_at_night.items():
+            if action:
+                print(f'{person.name} was killed during the night')
+            else:
+                print('an attempt was made but got save by the doctor')
+
+        print('now lets continue for voting')
 
 
 class Player():
@@ -92,5 +114,7 @@ my_game.assign_roles()
 my_game.night_phase()
 
 my_game.show_alive_players()
+
+my_game.day_phase()
 
 
