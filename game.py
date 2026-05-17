@@ -4,10 +4,10 @@ from typing import Dict
 from collections import defaultdict
 
 class Game():
-    action_at_night: Dict[str, bool] = {}
     def __init__(self, state:int=1):
         self.players = []
         self.state = state
+        self.action_at_night: Dict[str, bool] = {}
 
     def add_player(self, player_object):
         self.players.append(player_object)
@@ -60,13 +60,13 @@ class Game():
         for victim in victims:
             if victim not in saves:
                 victim.die()
-                Game.action_at_night[victim] = True
+                self.action_at_night[victim] = True
 
             elif victim in saves:
-                Game.action_at_night[victim] = False
+                self.action_at_night[victim] = False
 
     def day_phase(self):
-        for person, action in Game.action_at_night.items():
+        for person, action in self.action_at_night.items():
             if action:
                 print(f'{person.name} was killed during the night')
             else:
@@ -100,6 +100,27 @@ class Player():
 
     def die(self):
         self.life = False
+
+    def perform_night_action(self, game_players):
+    # By default, a normal villager does nothing at night.
+        pass
+
+class Villager(Player):
+    pass # Inherits everything, does nothing special at night
+
+class Mafia(Player):
+    # Override the night action!
+    def perform_night_action(self, game_players):
+        # Move your Mafia night logic here!
+        # Return who they chose to target.
+        pass
+
+class Doctor(Player):
+    # Override the night action!
+    def perform_night_action(self, game_players):
+        # Move your Doctor night logic here!
+        # Return who they chose to save.
+        pass
 
 
 pl1 = Player('pl1')
