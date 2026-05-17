@@ -11,8 +11,7 @@ class Game():
 
     def show_alive_players(self):
         for player in self.players:
-            if player.life:
-                print(f'{player.name} is alive')
+                print(f'{player.name} is {'alive' if player.life else 'Dead'}')
 
     def start_game(self):
         print('The game has started')
@@ -38,6 +37,20 @@ class Game():
         for player in self.players:
             print(f'{player.name} is {player.role}')
 
+    def night_phase(self):
+        for player in self.players:
+            if player.role == 'Mafia':
+                print(f'{player.name} please choose who to kill')
+                kill = random.choice([x for x in self.players if x != player])
+                player.vote(kill)
+            elif player.role == 'Doctor':
+                print(f'{player.name} please choose who to save')
+                save = random.choice([x for x in self.players if x != player])
+                player.vote(save)
+        
+        if kill != save:
+            kill.die()
+
 
 class Player():
     def __init__(self, name, role=None, life=True):
@@ -61,4 +74,23 @@ pl3 = Player('pl3')
 pl4 = Player('pl4')
 pl5 = Player('pl5')
 pl6 = Player('pl6')
+
+my_game = Game()
+
+my_game.add_player(pl1)
+my_game.add_player(pl2)
+my_game.add_player(pl3)
+my_game.add_player(pl4)
+my_game.add_player(pl5)
+my_game.add_player(pl6)
+
+
+my_game.start_game()
+
+my_game.assign_roles()
+
+my_game.night_phase()
+
+my_game.show_alive_players()
+
 
