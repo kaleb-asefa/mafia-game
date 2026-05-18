@@ -1,32 +1,29 @@
-from statistics import mode
 import random
-from typing import Dict
 from collections import defaultdict
 
-class Game():
-    def __init__(self, state:int=1):
+
+class Game:
+    def __init__(self, state: int = 1):
         self.players = []
         self.state = state
-        self.action_at_night: Dict[str, bool] = {}
+        self.action_at_night: dict[str, bool] = {}
 
     def add_player(self, player_object):
         self.players.append(player_object)
 
     def show_alive_players(self):
         for player in self.players:
-                print(f'{player.name} is {'alive' if player.life else 'Dead'}')
+            print(f"{player.name} is {'alive' if player.life else 'Dead'}")
 
     def start_game(self):
-        print('The game has started')
+        print("The game has started")
         return self.show_alive_players()
-    
+
     def assign_roles(self):
-        roles = { Villager : 4, 
-                 Mafia : 1, 
-                 Doctor : 1}
-        
+        roles = {Villager: 4, Mafia: 1, Doctor: 1}
+
         final_roles = []
-        
+
         for role, times in roles.items():
             final_roles.extend([role] * times)
 
@@ -35,19 +32,19 @@ class Game():
         for i in range(len(final_roles)):
             self.players[i] = final_roles[i](self.players[i].name)
         return self.overview()
-    
+
     def overview(self):
         for player in self.players:
-            print(f'{player.name} is {player.role}')
+            print(f"{player.name} is {player.role}")
 
     def night_phase(self):
-        print('what the hell is going on')
+
         events = defaultdict(list)
         for player in [x for x in self.players if x.life]:
             result = player.perform_night_action(self)
             if result is not None:
                 events[result[0]].append(result[1])
-        
+
         for name, actions in events.items():
             if "Kill" in actions and "Save" not in actions:
                 name.die()
@@ -56,37 +53,38 @@ class Game():
             elif "Kill" in actions and "Save" in actions:
                 self.action_at_night[name] = False
 
-
     def day_phase(self):
         for person, action in self.action_at_night.items():
             if action:
-                print(f'{person.name} was killed during the night')
+                print(f"{person.name} was killed during the night")
             else:
-                print('an attempt was made but got save by the doctor')
+                print("an attempt was made but got save by the doctor")
 
-        print('now lets continue for voting')
+        print("now lets continue for voting")
 
     def conducting_vote(self):
-        voting_status: Dict[str,int] = defaultdict(int)
+        voting_status: dict[str, int] = defaultdict(int)
         for player in [x for x in self.players if x.life]:
-            vote = random.choice([x for x in self.players if x != player and player.life])
+            vote = random.choice(
+                [x for x in self.players if x != player and player.life],
+            )
             player.vote(vote)
             voting_status[vote] += 1
-        
+
         voted_on = max(voting_status, key=voting_status.get)
         voted_on.die()
-        print(f' the town has voted to excute {voted_on.name}')
+        print(f" the town has voted to excute {voted_on.name}")
 
 
-class Player():
-    def __init__(self, name, role=None, life=True):
+class Player:
+    def __init__(self, name, role=None):
         self.name = name
         self.role = role
-        self.life = life
+        self.life = True
 
     def show_role(self):
-        print(f'you are {self.role}')
-    
+        print(f"you are {self.role}")
+
     def vote(self, target_player):
         print(f"{self.name} voted for {target_player.name}")
 
@@ -96,35 +94,42 @@ class Player():
     def perform_night_action(self, game_session):
         pass
 
+
 class Villager(Player):
-    def __init__(self, name, role='Villager', life=True):
-        super().__init__(name, role, life) 
+    def __init__(self, name, role="Villager"):
+        super().__init__(name, role)
+
 
 class Mafia(Player):
-    def __init__(self, name, role='Mafia', life=True):
-        super().__init__(name, role, life)
+    def __init__(self, name, role="Mafia"):
+        super().__init__(name, role)
 
     def perform_night_action(self, game_session):
-        print(f'{self.name} please choose who to kill')
-        target = random.choice([x for x in game_session.players if x != self and x.life])
-        return (target, 'Kill')
+        print(f"{self.name} please choose who to kill")
+        target = random.choice(
+            [x for x in game_session.players if x != self and x.life],
+        )
+        return (target, "Kill")
+
 
 class Doctor(Player):
+    def __init__(self, name, role="Doctor"):
+        super().__init__(name, role)
 
-    def __init__(self, name, role='Doctor', life=True):
-        super().__init__(name, role, life)
     def perform_night_action(self, game_session):
-        print(f'{self.name} please choose who to Save')
-        target = random.choice([x for x in game_session.players if x != self and x.life])
-        return (target, 'Save')
+        print(f"{self.name} please choose who to Save")
+        target = random.choice(
+            [x for x in game_session.players if x != self and x.life],
+        )
+        return (target, "Save")
 
 
-player_1 = Player('john')
-player_2 = Player('Mary')
-player_3 = Player('James')
-player_4 = Player('David')
-player_5 = Player('Sarah')
-player_6 = Player('Michael')
+player_1 = Player("john")
+player_2 = Player("Mary")
+player_3 = Player("James")
+player_4 = Player("David")
+player_5 = Player("Sarah")
+player_6 = Player("Michael")
 
 my_game = Game()
 
