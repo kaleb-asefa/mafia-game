@@ -72,6 +72,12 @@ class Game:
             voting_status[vote] += 1
 
         voted_on = max(voting_status, key=voting_status.get)
+        votes = max(voting_status.values())
+        highest_voted = [player for player, count in voting_status.items() if count == votes]
+        if len(highest_voted) > 1:
+            print("there is a tie in votes, no one will be executed")
+            self.conducting_vote()
+
         voted_on.die()
         print(f" the town has voted to excute {voted_on.name}")
 
@@ -84,7 +90,7 @@ class Game:
 
     def end_game(self):
         mafia_count = sum(1 for player in self.players if isinstance(player, Mafia))
-        villager_count = sum(1 for player in self.players if isinstance(player, Villager))
+        villager_count = sum(1 for player in self.players if isinstance(player, Villager) and player.life)
 
         if mafia_count == 0:
             print("Villagers win!")
@@ -170,6 +176,8 @@ while True:
     print("--" * 20)
     my_game.day_phase()
     print("--" * 20)
+    if my_game.end_game():
+        break
     my_game.conducting_vote()
     print("--" * 20)
     if my_game.end_game():
