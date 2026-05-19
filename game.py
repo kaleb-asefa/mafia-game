@@ -75,6 +75,12 @@ class Game:
         voted_on.die()
         print(f" the town has voted to excute {voted_on.name}")
 
+    def next_round(self):
+        self.players = [player for player in self.players if player.life]
+        self.state += 1
+        self.action_at_night.clear()
+        self.show_alive_players()
+
 
 class Player:
     def __init__(self, name, role=None):
@@ -147,6 +153,21 @@ my_game.assign_roles()
 print("--" * 20)
 my_game.night_phase()
 print("--" * 20)
+my_game.show_alive_players()
+print("--" * 20)
+
+my_game.day_phase()
+print("--" * 20)
+
+my_game.conducting_vote()
+print("--" * 20)
+
+my_game.next_round()
+print("--" * 20)
+
+my_game.night_phase()
+print("--" * 20)
+
 my_game.show_alive_players()
 print("--" * 20)
 
