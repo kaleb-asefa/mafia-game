@@ -66,7 +66,7 @@ class Game:
         voting_status: dict[str, int] = defaultdict(int)
         for player in [x for x in self.players if x.life]:
             vote = random.choice(
-                [x for x in self.players if x != player and player.life],
+                [x for x in self.players if x != player and x.life],
             )
             player.vote(vote)
             voting_status[vote] += 1
@@ -80,6 +80,19 @@ class Game:
         self.state += 1
         self.action_at_night.clear()
         self.show_alive_players()
+        self.end_game()
+
+    def end_game(self):
+        mafia_count = sum(1 for player in self.players if isinstance(player, Mafia))
+        villager_count = sum(1 for player in self.players if isinstance(player, Villager))
+
+        if mafia_count == 0:
+            print("Villagers win!")
+            return True
+        if mafia_count >= villager_count:
+            print("Mafia wins!")
+            return True
+        return False
 
 
 class Player:
@@ -118,7 +131,7 @@ class Mafia(Player):
         return (target, "Kill")
 
 
-class Doctor(Player):
+class Doctor(Villager):
     def __init__(self, name, role="Doctor"):
         super().__init__(name, role)
 
@@ -151,28 +164,14 @@ my_game.start_game()
 print("--" * 20)
 my_game.assign_roles()
 print("--" * 20)
-my_game.night_phase()
-print("--" * 20)
-my_game.show_alive_players()
-print("--" * 20)
 
-my_game.day_phase()
-print("--" * 20)
-
-my_game.conducting_vote()
-print("--" * 20)
-
-my_game.next_round()
-print("--" * 20)
-
-my_game.night_phase()
-print("--" * 20)
-
-my_game.show_alive_players()
-print("--" * 20)
-
-my_game.day_phase()
-print("--" * 20)
-
-my_game.conducting_vote()
-print("--" * 20)
+while True:
+    my_game.night_phase()
+    print("--" * 20)
+    my_game.day_phase()
+    print("--" * 20)
+    my_game.conducting_vote()
+    print("--" * 20)
+    if my_game.end_game():
+        break
+    my_game.next_round()
